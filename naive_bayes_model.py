@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import plotly.express as px
 from collections import defaultdict
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB, ComplementNB
@@ -21,7 +22,7 @@ def main():
 
     # Calculating probs
     # ## Probability that a team wins a medal
-    # country_athletes = df_athletes.groupby('NOC').count().rename(columns={'Discipline': 'Teams'}) 
+    # country_athletes = df_athletes.groupby('NOC').count().rename(columns={'Discipline': 'Teams'})
     country_athletes = defaultdict(lambda: set())
     for row in df_athletes.itertuples():
         country = row.NOC
@@ -60,7 +61,7 @@ def main():
         else:
             y_axis.append(0)
             x_axis_dataset.append(0)
-        
+
         if (p_b1_a1 < 0.2):
             x_axis_dataset.append(0)
         elif (p_b1_a1 < 0.4):
@@ -71,7 +72,7 @@ def main():
             x_axis_dataset.append(3)
         else:
             x_axis_dataset.append(4)
-        
+
         if (p_b2_a1 < 0.2):
             x_axis_dataset.append(0)
         elif (p_b2_a1 < 0.4):
@@ -82,12 +83,12 @@ def main():
             x_axis_dataset.append(3)
         else:
             x_axis_dataset.append(4)
-        
+
         x_axis.append(x_axis_dataset)
 
         # Naive Bayes Applied thereom
         final_data[country] = p_a1 * p_b1_a1 * p_b2_a1
-    
+
     # Naive Bayes learning models
     x_train, x_test, y_train, y_test = train_test_split(x_axis, y_axis, test_size=0.4, random_state=42)
     # MULTINOMIAL NB
@@ -152,6 +153,14 @@ def main():
 
     for key in final_data:
         print("Country: " + key + " Probs: " + str(final_data[key] * 100))
+
+    sorted_data = dict(sorted(final_data.items(), key=lambda item: item[1], reverse=True))
+    print(sorted_data)
+    x_vals = list(sorted_data.keys())[0:75]
+    y_vals = list(sorted_data.values())[0:75]
+
+    fig = px.bar(x=x_vals, y=y_vals, title='Probability of Country Winning Medal', labels={'x': 'Countries', 'y': 'Probability of Winning a Medal'})
+    fig.show()
 
 
 main()
